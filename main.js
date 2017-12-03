@@ -334,7 +334,7 @@ function animate() {
   requestAnimationFrame( animate );
   render();
   //stats.update();
-  toggleRecording();
+  //toggleRecording();
 
 }
 function render() {
