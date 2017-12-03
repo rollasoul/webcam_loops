@@ -31,10 +31,10 @@ var sourceBuffer;
 var gumVideo = document.querySelector('video#gum');
 var recordedVideo = document.querySelector('video#recorded');
 
-var recordButton = document.querySelector('button#record');
-var playButton = document.querySelector('button#play');
-var downloadButton = document.querySelector('button#download');
-recordButton.onclick = toggleRecording;
+//var recordButton = document.querySelector('button#record');
+//var playButton = document.querySelector('button#play');
+//var downloadButton = document.querySelector('button#download');
+//recordButton.onclick = toggleRecording;
 //playButton.onclick = play;
 //downloadButton.onclick = download;
 
@@ -53,7 +53,7 @@ var constraints = {
 };
 
 function handleSuccess(stream) {
-  recordButton.disabled = false;
+  //recordButton.disabled = false;
   console.log('getUserMedia() got stream: ', stream);
   window.stream = stream;
   gumVideo.srcObject = stream;
@@ -89,15 +89,13 @@ function handleStop(event) {
 }
 
 function toggleRecording() {
-  if (recordButton.textContent === 'Start Recording') {
+    console.log('yo');
     startRecording();
     rec_time();
-  } else {
     //stopRecording();
     //recordButton.textContent = 'Start Recording';
     //playButton.disabled = false;
-    downloadButton.disabled = false;
-  }
+    //downloadButton.disabled = false;
 }
 
 function rec_time() {
@@ -105,7 +103,7 @@ function rec_time() {
       stopRecording();
       //playButton.disabled = false;
       play();
-    }, 5000);
+    }, 30000);
     console.log('stopped recording');
 }
 
@@ -133,7 +131,7 @@ function startRecording() {
     return;
   }
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  recordButton.textContent = 'Stop Recording';
+  //recordButton.textContent = 'Stop Recording';
   //playButton.disabled = true;
   //downloadButton.disabled = true;
   mediaRecorder.onstop = handleStop;
@@ -187,6 +185,9 @@ function download() {
 
 init();
 animate();
+setTimeout(function(){
+  toggleRecording()
+}, 500)
 
 function init() {
   container = document.createElement( 'div' );
@@ -196,7 +197,7 @@ function init() {
   camera.position.z = 1200;
   camera.position.y = 500;
   scene = new THREE.Scene();
-  //toggleRecording;
+  toggleRecording;
 
   // here we grab the videos from their html elements:
   videostream = document.getElementById('monitor')
