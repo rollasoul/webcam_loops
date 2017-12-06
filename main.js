@@ -144,6 +144,26 @@ function stopRecording() {
   mediaRecorder.stop();
   console.log('Recorded Blobs: ', recordedBlobs);
   recordedVideo.controls = true;
+  download_popup();
+  // setTimeout(function(){
+  //   window.location.href = "index.html";
+  // }, 15000);
+}
+
+function download_popup() {
+    setTimeout(function(){
+      var txt;
+      if (confirm("I wanna confuse other people with my recording!") == true) {
+          txt = "You pressed OK!";
+          download();
+          window.location.href = "index.html";
+      } else {
+          txt = "You pressed Cancel!";
+          window.location.href = "index.html";
+      }
+      document.getElementById("demo").innerHTML = txt;
+    }, 5000);
+    console.log('downloaded recording, going back home');
 }
 
 function play() {
@@ -179,6 +199,8 @@ function download() {
     window.URL.revokeObjectURL(url);
   }, 100);
 }
+
+
 /////////////////////////
 //end of rec controls///
 ///////////////////////
@@ -187,7 +209,7 @@ init();
 animate();
 setTimeout(function(){
   toggleRecording()
-}, 500)
+}, 1000)
 
 function init() {
   container = document.createElement( 'div' );
@@ -210,7 +232,7 @@ function init() {
 	///////////
 
 	videoImage = document.getElementById( 'videoImage' );
-  videoImage.width = 362;
+  videoImage.width = 480;
   videoImage.height = 204;
 	videoImageContext = videoImage.getContext( '2d' );
 	// background color if no video present
@@ -345,16 +367,19 @@ function render() {
   if ( videostream.readyState === videostream.HAVE_ENOUGH_DATA ) {
     videoImageContext.drawImage( videostream, 0, 0 );
     if ( texture ) texture.needsUpdate = true;
+    if (texture2) texture.needsUpdate = false;
   }
   if ( video2.readyState === video2.HAVE_ENOUGH_DATA ) {
     imageContext2.drawImage( video2, 0, 0 );
+    texture.needsUpdate = false
     if ( texture2 ) texture2.needsUpdate = true;
   }
 
   //replace video2 with the recorded video2 if it is there
   if ( recordedVideo.readyState === recordedVideo.HAVE_ENOUGH_DATA ) {
-    imageContext2.drawImage( recordedVideo, 0, 0 );
-    if ( texture2 ) texture2.needsUpdate = true;
+    imageContext2.drawImage( recordedVideo, 0, 0, videoImage.width, videoImage.height );
+    texture2.needsUpdate = false;
+    video2.pause();
   }
 
   if ( video3.readyState === video3.HAVE_ENOUGH_DATA ) {
