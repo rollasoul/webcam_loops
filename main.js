@@ -6,16 +6,18 @@ var video, beat, image, imageContext,
 imageReflection, imageReflectionContext, imageReflectionGradient,
 texture, textureReflection, textureLeft;
 var image2, imageContext2, texture2, video2, texture2;
-var image3, imageContext3, texture3, video3, texture3;
+var image3, imageContext3, texture3, video3, texture3, downloaded_vid;
 var mesh;
 var mouseX = 0;
 var mouseY = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
+var downloaded_vid;
 
-////////////////////
-//rec controls/////
+  //////////////////
+ ///rec controls///
 //////////////////
+
 var mediaSource = new MediaSource();
 mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
 var mediaRecorder;
@@ -30,13 +32,6 @@ var sourceBuffer;
 
 var gumVideo = document.querySelector('video#gum');
 var recordedVideo = document.querySelector('video#recorded');
-
-//var recordButton = document.querySelector('button#record');
-//var playButton = document.querySelector('button#play');
-//var downloadButton = document.querySelector('button#download');
-//recordButton.onclick = toggleRecording;
-//playButton.onclick = play;
-//downloadButton.onclick = download;
 
 // window.isSecureContext could be used for Chrome
 var isSecureOrigin = location.protocol === 'https:' ||
@@ -92,18 +87,13 @@ function toggleRecording() {
     console.log('yo');
     startRecording();
     rec_time();
-    //stopRecording();
-    //recordButton.textContent = 'Start Recording';
-    //playButton.disabled = false;
-    //downloadButton.disabled = false;
 }
 
 function rec_time() {
     setTimeout(function(){
       stopRecording();
-      //playButton.disabled = false;
       play();
-    }, 30000);
+    }, 40000);
     console.log('stopped recording');
 }
 
@@ -131,9 +121,6 @@ function startRecording() {
     return;
   }
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  //recordButton.textContent = 'Stop Recording';
-  //playButton.disabled = true;
-  //downloadButton.disabled = true;
   mediaRecorder.onstop = handleStop;
   mediaRecorder.ondataavailable = handleDataAvailable;
   mediaRecorder.start(10); // collect 10ms of data
@@ -145,25 +132,22 @@ function stopRecording() {
   console.log('Recorded Blobs: ', recordedBlobs);
   recordedVideo.controls = true;
   download_popup();
-  // setTimeout(function(){
-  //   window.location.href = "index.html";
-  // }, 15000);
 }
 
 function download_popup() {
     setTimeout(function(){
       var txt;
-      if (confirm("I wanna confuse other people with my recording!") == true) {
-          txt = "You pressed OK!";
+      if (confirm("I am aware that I was recorded. I want to confuse other people with my own recording now.") == true) {
+          txt = "Thank you for your cooperation. Good-bye";
           download();
           window.location.href = "index.html";
       } else {
-          txt = "You pressed Cancel!";
+          txt = "Thank you for your non-cooperation.Good-bye";
           window.location.href = "index.html";
       }
       document.getElementById("demo").innerHTML = txt;
-    }, 5000);
-    console.log('downloaded recording, going back home');
+    }, 15000);
+    console.log('  recording, going back home');
 }
 
 function play() {
@@ -200,10 +184,9 @@ function download() {
   }, 100);
 }
 
-
+  /////////////////////////
+ ///end of rec controls///
 /////////////////////////
-//end of rec controls///
-///////////////////////
 
 init();
 animate();
@@ -216,8 +199,8 @@ function init() {
 
   document.body.appendChild( container );
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 9000 );
-  camera.position.z = 1200;
-  camera.position.y = 500;
+  camera.position.z = 1400;
+  camera.position.y = 0;
   scene = new THREE.Scene();
   toggleRecording;
 
@@ -226,10 +209,13 @@ function init() {
   //video = document.getElementById( 'video' );
   video2 = document.getElementById( 'video2' );
   video3 = document.getElementById( 'video3' );
-
-  ///////////
-	// stream from webcam //
-	///////////
+  console.log(video3);
+  downloaded_vid = document.getElementById( 'downloaded_vid' );
+  console.log (downloaded_vid);
+	
+  /////////////////////////
+ ///stream from webcam ///
+/////////////////////////
 
 	videoImage = document.getElementById( 'videoImage' );
   videoImage.width = 480;
@@ -335,19 +321,20 @@ function init() {
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize( window.innerWidth, window.innerHeight );
   container.appendChild( renderer.domElement );
-  //stats = new Stats();
-  //container.appendChild( stats.dom );
   document.addEventListener( 'mousemove', onDocumentMouseMove, false );
   window.addEventListener( 'resize', onWindowResize, false );
 }
-
 function onWindowResize() {
+
   windowHalfX = window.innerWidth / 2;
   windowHalfY = window.innerHeight / 2;
+
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+
   renderer.setSize( window.innerWidth, window.innerHeight );
 }
+
 function onDocumentMouseMove( event ) {
   mouseX = ( event.clientX - windowHalfX );
   mouseY = ( event.clientY - windowHalfY ) * 0.01;
@@ -356,14 +343,19 @@ function onDocumentMouseMove( event ) {
 function animate() {
   requestAnimationFrame( animate );
   render();
-  //stats.update();
-  //toggleRecording();
-
 }
+
+var h, counter = 1;
+
 function render() {
+
+  var time = Date.now() * 0.00005;
+
   camera.position.x += ( mouseX - camera.position.x ) * 0.05;
   camera.position.y += ( - mouseY - camera.position.y ) ;
   camera.lookAt( scene.position );
+
+
   if ( videostream.readyState === videostream.HAVE_ENOUGH_DATA ) {
     videoImageContext.drawImage( videostream, 0, 0 );
     if ( texture ) texture.needsUpdate = true;
@@ -375,7 +367,7 @@ function render() {
     if ( texture2 ) texture2.needsUpdate = true;
   }
 
-  //replace video2 with the recorded video2 if it is there
+  //replace video2 with the recorded or video if it is there
   if ( recordedVideo.readyState === recordedVideo.HAVE_ENOUGH_DATA ) {
     imageContext2.drawImage( recordedVideo, 0, 0, videoImage.width, videoImage.height );
     texture2.needsUpdate = false;
@@ -386,11 +378,19 @@ function render() {
     imageContext3.drawImage( video3, 0, 0 );
     if ( texture3 ) texture3.needsUpdate = true;
   }
+
+  if ( downloaded_vid.readyState === downloaded_vid.HAVE_ENOUGH_DATA ) {
+    imageContext2.drawImage( downloaded_vid, 0, 0, videoImage.width, videoImage.height );
+    texture2.needsUpdate = false;
+    video2.pause();
+  }
+
   if ( videostream.readyState === videostream.HAVE_ENOUGH_DATA )
 	{
 		videoImageContext.drawImage( videostream, 0, 0, videoImage.width, videoImage.height );
 		if ( videoTexture )
 			videoTexture.needsUpdate = true;
 	}
+
   renderer.render( scene, camera );
 }
